@@ -1,2 +1,0 @@
-from ev3dev2.sensor import *
-from ev3dev.ev3 import *
