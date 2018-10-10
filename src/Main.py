@@ -26,3 +26,5 @@ if __name__=="__main__":
     virar(90)
     time.sleep(5)
     andar_frente()
+    time.sleep(5)
+    quit();
