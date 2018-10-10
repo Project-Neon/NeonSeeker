@@ -17,7 +17,7 @@ def virar(graus):
         rodas.on(SpeedPercent(50),SpeedPercent(-50),1)
     if graus == -90:
         rodas.on(SpeedPercent(-50),SpeedPercent(50),1)
-    if graus = 180:
+    if graus == 180:
         rodas.on(SpeedPercent(50),SpeedPercent(-50),2)
     else:
         pass
