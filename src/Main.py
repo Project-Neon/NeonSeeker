@@ -8,10 +8,12 @@ sensor1=ColorSensor(INPUT_1)
 sensor1.mode = sensor1.MODE_COL_COLOR #modo detecção de  cor padrao
 def andar_frente():
     #run_forever until sees a color different than white
-    #while sensor1.color==6 or sensor1.color==0:
-    rodas.on(-20,-20)
-    time.sleep(5)
-    quit();
+    while 1:
+        print sensor1.color
+        while sensor1.color==6 or sensor1.color==0:
+        rodas.on(-20,-20)
+
+
 
 def virar(graus):
 
