@@ -2,7 +2,7 @@
 from ev3dev2.sensor import *
 from ev3dev.ev3 import *
 from ev3dev2.sensor.lego import ColorSensor
-from ev3dev2.motor import OUTPUT_A,OUTPUT_B,MoveTank
+from ev3dev2.motor import OUTPUT_A,OUTPUT_B,MoveTank,SpeedPercent
 rodas=MoveTank(OUTPUT_A,OUTPUT_B)
 sensor1=ColorSensor(INPUT_1)
 sensor1.mode = sensor1.MODE_COL_COLOR #modo detecção de  cor padrao
