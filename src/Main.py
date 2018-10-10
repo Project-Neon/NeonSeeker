@@ -14,11 +14,11 @@ def andar_frente():
 def virar(graus):
 
     if graus == 90:
-        rodas.on(500,-500)
+        rodas.on(50,-50)
     if graus == -90:
-        rodas.on(-500,500)
+        rodas.on(-50,50)
     if graus == 180:
-        rodas.on(500,500)
+        rodas.on(50,50)
     else:
         pass
 
