@@ -14,15 +14,15 @@ def andar_frente():
 def virar(graus):
 
     if graus == 90:
-        rodas.on(50,-50)
+        rodas.on_for_seconds(50,-50,1)
     if graus == -90:
-        rodas.on(-50,50)
+        rodas.on_for_seconds(-50,50,1)
     if graus == 180:
-        rodas.on(50,50)
+        rodas.on_for_seconds(50,50,1)
     else:
         pass
 
 if __name__=="__main__":
     virar(90)
-    sleep(5)
+    time.sleep(5)
     andar_frente()
