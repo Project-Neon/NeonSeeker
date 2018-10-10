@@ -10,8 +10,10 @@ def andar_frente():
     #run_forever until sees a color different than white
     while 1:
         print (sensor1.color_name)
-        while sensor1.color==6 or sensor1.color==0:
+        if sensor1.color==6 or sensor1.color==0:
             rodas.on(-20,-20)
+        else:
+            rodas.off()    
 
 
 
