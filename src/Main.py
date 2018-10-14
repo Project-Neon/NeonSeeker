@@ -9,29 +9,25 @@ sensor1=ColorSensor(INPUT_1)
 quads = []
 orientacao = 0
 memoria_cor= {}
-ida=0
 cor_atual=""
 tentativa=0
 start_time=0
 sensor1.mode = sensor1.MODE_COL_COLOR #modo detecção de  cor padrao
 #função para retorno, a partir do tempo em que o robo detecta a cor do quad novo
 #neste caso branco, ele se utiliza deste tempo e volta para a quad de onde saiu
-def retorno(t):
-    global tentativa,ida,start_time
-    ida=0
-    rodas.on_for_seconds(20,20,t)
-    tentativa+=1
-    procurar_proximo()
-    start_time = time.time()
-    rodas.on_for_seconds(-20,-20,1)
+# Substituir Brown por White e em locais em que aparecem White trocar pelas possibilades de cor da pista
+def retorno(t):#função para o retorno
+    global tentativa,,start_time
+    rodas.on_for_seconds(20,20,t)#volta até o ultimo ponto de referencia
+    tentativa+=1#indica que foi feita uma tentativa que falhou
+    procurar_proximo()#vira conforme as orientações que são possiveis
+    start_time = time.time()#reseta o timer
+    rodas.on_for_seconds(-20,-20,1)#anda um pouco a frente para nao o robo não reconhecer o mesmo ponto de referencia como um novo ponto
 
 
-def andar_frente():
-    global ida,ultima_cor,cor_atual,start_time
-    ida=1
-    #run_forever until sees a color different than white,returns traveled time
-    # start_time=0
-    #time.sleep(1)
+def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar com o robo e pista finais
+    global ,ultima_cor,cor_atual,start_time
+    #Vai para frente até ver Black, retorna o tempo percorrido
     while 1:
         if  (sensor1.color_name=='White'or sensor1.color_name=='Brown') and start_time ==0:
             rodas.on(-20,-20)
@@ -39,27 +35,19 @@ def andar_frente():
                 print ('exec white and start time==0')
                 cor_atual=sensor1.color_name
                 time.sleep(1.5)
-                procurar_proximo()
+                procurar_proximo()#vira se ver branco, começa o timer e continua a andar para frente
                 start_time = time.time()
-
-                # branco+=1
-                # print ("executou")
         elif sensor1.color_name=='Brown' and start_time!=0:
             rodas.on(-20,-20)
         elif sensor1.color_name=='White' and start_time!=0 :
             print ('exec white and start time!=0')
             rodas.on_for_seconds(-20,-20,0.5)
             rodas.off()
-            return (time.time()-start_time)
+            return (time.time()-start_time)#se achar branco/cor de indicação retorna o tempo entre os pontos e para de andar
         elif(sensor1.color_name=="Black"):
-            # branco-=1
-            elapsed_time=(time.time()-start_time)
-            #ACERTAR ESTE CALCULO PARA A CONTAGEM COMEÇAR DO MEIO DO QUADRADO COLORIDO
             rodas.off()
-            # print (start_time)
-            return elapsed_time
-
-def virar(graus):
+            return (time.time()-start_time)#ACERTAR ESTE CALCULO PARA A CONTAGEM COMEÇAR DO MEIO DO QUADRADO COLORIDO
+def virar(graus):#função de virada relativa a posiçao
         global orientacao
         if graus<0:
             rodas.on_for_seconds(-50,50,abs(graus)*(0.5/90))
@@ -72,10 +60,8 @@ def virar(graus):
         if (orientacao<0):
             orientacao += 360
 
-def procurar_proximo():
+def procurar_proximo():#corrigir para o caso de nao conhecer a cor porém conhecer 90(exemplo)
     global tentativa,cor_atual
-    print("cor atual")
-    print(cor_atual)
     if (cor_atual not in  memoria_cor.keys()):
         if (90 not in memoria_cor.values() and tentativa == 0):
             virar(90)
@@ -86,7 +72,7 @@ def procurar_proximo():
     else:
         virar(memoria_cor[cor_atual])
 
-class quad:
+class quad:#objeto que guarda informações do ponto de referencia encontrado
     def __init__(self,cor,tempo,orientacao):
         self.cor = cor
         self.tempo = tempo
@@ -96,13 +82,10 @@ if __name__=="__main__":
     start_time=0
     while (1):
         tempo = andar_frente()
-        if (sensor1.color_name=='Black'):
+        if (sensor1.color_name=='Black'):#se ver Preto retorna até o ponto de referencia de onde saiu
             retorno(tempo)
-        if (sensor1.color_name=='White'):
-            print("cor atual")
-            print(cor_atual)
-            tentativa=0
+        if (sensor1.color_name=='White'):#se ver um novo ponto de referencia atualiza a memoria de tal cor, coloca na lista informações relativas ao descoberto e ao ultimo ligado a ele
+            tentativa=0#reseta a variavel tentativas o que indica que é um novo quadrado
             memoria_cor[cor_atual]=orientacao
             quads.append(quad(cor_atual,tempo,orientacao))
-            print (memoria_cor)
-            start_time=0
+            start_time=0#reseta o timer
