@@ -15,7 +15,7 @@ start_time=0
 sensor1.mode = sensor1.MODE_COL_COLOR #modo detecção de  cor padrao
 #função para retorno, a partir do tempo em que o robo detecta a cor do quad novo
 #neste caso branco, ele se utiliza deste tempo e volta para a quad de onde saiu
-# Substituir Brown por White e em locais em que aparecem White trocar pelas possibilades de cor da pista
+# Substituir White por verde e em locais em que aparecem verde trocar pelas possibilades de cor da pista
 def retorno(t):#função para o retorno
     global tentativa,,start_time
     rodas.on_for_seconds(20,20,t)#volta até o ultimo ponto de referencia
@@ -29,23 +29,20 @@ def sair_da_cor_atual(cor):
     while sensor1.color_name==cor:
         rodas.on(-20,-20)
     rodas.off()
+
 def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar com o robo e pista finais
     global ,ultima_cor,cor_atual,start_time
     #Vai para frente até ver Black, retorna o tempo percorrido
-    while 1:
-        if  (sensor1.color_name=='White'or sensor1.color_name=='Brown') and start_time ==0:
-            rodas.on(-20,-20)
-            if sensor1.color_name=='White' and start_time==0:
-                print ('exec white and start time==0')
+    while 1:    
+        if diferente_de("White","Black") and start_time==0:
                 cor_atual=sensor1.color_name
                 time.sleep(1.5)
                 procurar_proximo()#vira se ver branco, começa o timer e continua a andar para frente
                 start_time = time.time()
                 sair_da_cor_atual(cor_atual)
-        elif sensor1.color_name=='Brown' and start_time!=0:
+        elif sensor1.color_name=='White':
             rodas.on(-20,-20)
-        elif sensor1.color_name=='White' and start_time!=0 :
-            print ('exec white and start time!=0')
+        elif diferente_de("White", "Black") and start_time != 0:
             rodas.on_for_seconds(-20,-20,0.5)
             rodas.off()
             return (time.time()-start_time)#se achar branco/cor de indicação retorna o tempo entre os pontos e para de andar
@@ -81,6 +78,11 @@ def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
     else:
         virar(memoria_cor[cor_atual])
 
+def diferente_de(*cor):
+    if sensor1.color_name not in cor:
+        return 1
+    else: return 0
+
 class quad:#objeto que guarda informações do ponto de referencia encontrado
     def __init__(self,cor,tempo,orientacao):
         self.cor = cor
@@ -93,7 +95,8 @@ if __name__=="__main__":
         tempo = andar_frente()
         if (sensor1.color_name=='Black'):#se ver Preto retorna até o ponto de referencia de onde saiu
             retorno(tempo)
-        if (sensor1.color_name=='White'):#se ver um novo ponto de referencia atualiza a memoria de tal cor, coloca na lista informações relativas ao descoberto e ao ultimo ligado a ele
+        # se ver um novo ponto de referencia atualiza a memoria de tal cor, coloca na lista informações relativas ao descoberto e ao ultimo ligado a ele
+        if (diferente_de("White", "Black")):
             tentativa=0#reseta a variavel tentativas o que indica que é um novo quadrado
             memoria_cor[cor_atual]=orientacao
             quads.append(quad(cor_atual,tempo,orientacao))
