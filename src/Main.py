@@ -20,11 +20,15 @@ def retorno(t):#função para o retorno
     global tentativa,,start_time
     rodas.on_for_seconds(20,20,t)#volta até o ultimo ponto de referencia
     tentativa+=1#indica que foi feita uma tentativa que falhou
+    cor=sensor1.color_name
     procurar_proximo()#vira conforme as orientações que são possiveis
     start_time = time.time()#reseta o timer
-    rodas.on_for_seconds(-20,-20,1)#anda um pouco a frente para nao o robo não reconhecer o mesmo ponto de referencia como um novo ponto
+    sair_da_cor_atual(cor)#anda um pouco a frente para nao o robo não reconhecer o mesmo ponto de referencia como um novo ponto
 
-
+def sair_da_cor_atual(cor):
+    while sensor1.color_name==cor:
+        rodas.on(-20,-20)
+    rodas.off()
 def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar com o robo e pista finais
     global ,ultima_cor,cor_atual,start_time
     #Vai para frente até ver Black, retorna o tempo percorrido
@@ -37,6 +41,7 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
                 time.sleep(1.5)
                 procurar_proximo()#vira se ver branco, começa o timer e continua a andar para frente
                 start_time = time.time()
+                sair_da_cor_atual(cor_atual)
         elif sensor1.color_name=='Brown' and start_time!=0:
             rodas.on(-20,-20)
         elif sensor1.color_name=='White' and start_time!=0 :
@@ -60,13 +65,17 @@ def virar(graus):#função de virada relativa a posiçao
         if (orientacao<0):
             orientacao += 360
 
-def procurar_proximo():#corrigir para o caso de nao conhecer a cor porém conhecer 90(exemplo)
+def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
     global tentativa,cor_atual
     if (cor_atual not in  memoria_cor.keys()):
         if (90 not in memoria_cor.values() and tentativa == 0):
             virar(90)
+        if(90 in memoria_cor.values()):
+            tentativa=1;
         if (0 not in memoria_cor.values() and tentativa == 1):
             virar(-90)
+        if(0 in memoria_cor.values()):
+            tentativa=2;
         if (270 not in memoria_cor.values() and tentativa == 2):
             virar(-90)
     else:
