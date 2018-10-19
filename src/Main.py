@@ -74,7 +74,8 @@ def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
         if(0 in memoria_cor.values()):
             tentativa=2;
         if (270 not in memoria_cor.values() and tentativa == 2):
-            virar(-90)
+            if(0 in memoria_cor.values() and 90 not in memoria_cor.values()): virar(-180)
+            else: virar(-90)
     else:
         virar(memoria_cor[cor_atual])
 
