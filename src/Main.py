@@ -19,7 +19,7 @@ sensor1.mode = sensor1.MODE_COL_COLOR #modo detecção de  cor padrao
 def retorno(t):#função para o retorno
     global tentativa,start_time
     print ('viu preto')
-    
+
     rodas.on_for_seconds(20,20,t)#volta até o ultimo ponto de referencia
     tentativa+=1#indica que foi feita uma tentativa que falhou
     cor=sensor1.color_name
@@ -35,7 +35,7 @@ def sair_da_cor_atual(cor):
 def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar com o robo e pista finais
     global ultima_cor,cor_atual,start_time
     #Vai para frente até ver Black, retorna o tempo percorrido
-    while 1:    
+    while 1:
         if diferente_de("White","Black") and start_time==0:
                 cor_atual=sensor1.color_name
                 print(cor_atual)
@@ -59,7 +59,7 @@ def virar(graus):#função de virada relativa a posiçao
         elif(graus==0): pass
         else:
             rodas.on_for_seconds(50,-50,abs(graus)*(0.5/90))
-        orientacao += graus
+        orientacao = graus
         if (orientacao>=360):
             orientacao -= 360
         if (orientacao<0):
