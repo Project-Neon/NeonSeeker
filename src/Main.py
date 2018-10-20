@@ -67,15 +67,17 @@ def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
     if (cor_atual not in  memoria_cor.keys()):
         if (90 not in memoria_cor.values() and tentativa == 0):
             virar(90)
-        if(90 in memoria_cor.values()):
+        if(90 in memoria_cor.values()):#Se 90 ja é conhecido vai para a proxima tentativa, 0 graus
             tentativa=1;
         if (0 not in memoria_cor.values() and tentativa == 1):
             virar(-90)
         if(0 in memoria_cor.values()):
             tentativa=2;
+        if(0 in memoria_cor.values() and 90 not in memoria_cor.values() and tentativa ==1):#caso de conhecer a orientação 0, e não conhecer 90 ou 270
+            tentativa=2
+            virar(-90)
         if (270 not in memoria_cor.values() and tentativa == 2):
-            if(0 in memoria_cor.values() and 90 not in memoria_cor.values()): virar(-180)
-            else: virar(-90)
+           virar(-90)
     else:
         virar(memoria_cor[cor_atual])
 
