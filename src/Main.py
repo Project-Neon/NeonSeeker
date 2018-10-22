@@ -17,7 +17,9 @@ sensor1.mode = sensor1.MODE_COL_COLOR #modo detecção de  cor padrao
 #neste caso branco, ele se utiliza deste tempo e volta para a quad de onde saiu
 # Substituir White por verde e em locais em que aparecem verde trocar pelas possibilades de cor da pista
 def retorno(t):#função para o retorno
-    global tentativa,,start_time
+    global tentativa,start_time
+    print ('viu preto')
+    
     rodas.on_for_seconds(20,20,t)#volta até o ultimo ponto de referencia
     tentativa+=1#indica que foi feita uma tentativa que falhou
     cor=sensor1.color_name
@@ -31,19 +33,20 @@ def sair_da_cor_atual(cor):
     rodas.off()
 
 def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar com o robo e pista finais
-    global ,ultima_cor,cor_atual,start_time
+    global ultima_cor,cor_atual,start_time
     #Vai para frente até ver Black, retorna o tempo percorrido
     while 1:    
         if diferente_de("White","Black") and start_time==0:
                 cor_atual=sensor1.color_name
-                time.sleep(1.5)
+                print(cor_atual)
+                time.sleep(2.5)
                 procurar_proximo()#vira se ver branco, começa o timer e continua a andar para frente
                 start_time = time.time()
                 sair_da_cor_atual(cor_atual)
         elif sensor1.color_name=='White':
             rodas.on(-20,-20)
         elif diferente_de("White", "Black") and start_time != 0:
-            rodas.on_for_seconds(-20,-20,0.5)
+            rodas.on_for_seconds(-20,-20,2.5)
             rodas.off()
             return (time.time()-start_time)#se achar branco/cor de indicação retorna o tempo entre os pontos e para de andar
         elif(sensor1.color_name=="Black"):
@@ -66,21 +69,22 @@ def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
     global tentativa,cor_atual,orientacao
     if (cor_atual not in  memoria_cor.keys()):
         if (90 not in memoria_cor.values() and tentativa == 0):
+            print ('tentativa0')
             virar(90)
-            orientacao=90
-        if(90 in memoria_cor.values()):#Se 90 ja é conhecido vai para a proxima tentativa, 0 graus
+            orientacao = 90
+        if(90 in memoria_cor.values()):
             tentativa=1;
         if (0 not in memoria_cor.values() and tentativa == 1):
             virar(-90)
+            print ('tentativa1')
             orientacao = 0
-        if(0 in memoria_cor.values()):
+        if(0 in memoria_cor.values() and 90 not in memoria_cor.values() and tentativa==1):
             tentativa=2;
-        if(0 in memoria_cor.values() and 90 not in memoria_cor.values() and tentativa ==1):#caso de conhecer a orientação 0, e não conhecer 90 ou 270
-            tentativa=2
             virar(-90)
         if (270 not in memoria_cor.values() and tentativa == 2):
-           virar(-90)
-           orientacao = -90
+            print ('tentativa2')
+            virar(-90)
+            orientacao = -90
     else:
         virar(memoria_cor[cor_atual])
 
@@ -108,3 +112,4 @@ if __name__=="__main__":
             quads.append(quad(cor_atual,tempo,orientacao))
             orientacao=0
             start_time=0#reseta o timer
+            print('achou novo')
