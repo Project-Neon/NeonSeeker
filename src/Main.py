@@ -56,21 +56,23 @@ def virar(graus):#função de virada relativa a posiçao
         elif(graus==0): pass
         else:
             rodas.on_for_seconds(50,-50,abs(graus)*(0.5/90))
-        orientacao += graus
-        if (orientacao>=360):
-            orientacao -= 360
-        if (orientacao<0):
-            orientacao += 360
+        #orientacao += graus
+        #if (orientacao>=360):
+           # orientacao -= 360
+        #if (orientacao<0):
+            #orientacao += 360
 
 def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
-    global tentativa,cor_atual
+    global tentativa,cor_atual,orientacao
     if (cor_atual not in  memoria_cor.keys()):
         if (90 not in memoria_cor.values() and tentativa == 0):
             virar(90)
+            orientacao=90
         if(90 in memoria_cor.values()):#Se 90 ja é conhecido vai para a proxima tentativa, 0 graus
             tentativa=1;
         if (0 not in memoria_cor.values() and tentativa == 1):
             virar(-90)
+            orientacao = 0
         if(0 in memoria_cor.values()):
             tentativa=2;
         if(0 in memoria_cor.values() and 90 not in memoria_cor.values() and tentativa ==1):#caso de conhecer a orientação 0, e não conhecer 90 ou 270
@@ -78,6 +80,7 @@ def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
             virar(-90)
         if (270 not in memoria_cor.values() and tentativa == 2):
            virar(-90)
+           orientacao = -90
     else:
         virar(memoria_cor[cor_atual])
 
@@ -103,4 +106,5 @@ if __name__=="__main__":
             tentativa=0#reseta a variavel tentativas o que indica que é um novo quadrado
             memoria_cor[cor_atual]=orientacao
             quads.append(quad(cor_atual,tempo,orientacao))
+            orientacao=0
             start_time=0#reseta o timer
