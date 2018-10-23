@@ -46,7 +46,7 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
         elif sensor1.color_name=='White':
             rodas.on(-20,-20)
         elif diferente_de("White", "Black") and start_time != 0:
-            rodas.on_for_seconds(-20,-20,2.5)
+            rodas.on_for_seconds(-20,-20,2.5)#trocar por função de indentificação do plaza
             rodas.off()
             return (time.time()-start_time)#se achar branco/cor de indicação retorna o tempo entre os pontos e para de andar
         elif(sensor1.color_name=="Black"):
