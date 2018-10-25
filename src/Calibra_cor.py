@@ -20,7 +20,7 @@ for cor in cores.keys():
     print (f'Coloque Dora no {cor}, e aperte qualquer botão para prosseguir',end="     \r")
     while not btn.any():pass
     Sound.speak('A cor ',cor,' foi adicionada com sucesso')
-    cores[cor]=Sensor_direita.rgb
+    cores[cor]=media(Sensor_direita.rgb,Sensor_esquerda.rgb)
 print('Todas as cores registradas\nSalvando arquivo Cores.p...\nSaindo',end='\r')
 pickle.dump(cores,open('Cores.p','wb'))
 

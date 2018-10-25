@@ -27,23 +27,25 @@ def retorno(t):#função para o retorno
     start_time = time.time()#reseta o timer
     sair_da_cor_atual(cor)#anda um pouco a frente para nao o robo não reconhecer o mesmo ponto de referencia como um novo ponto
 
-def sair_da_cor_atual(cor):
+def sair_da_cor_atual(cor):#TROCAR PELO ALINHAMENTO
     while sensor1.color_name==cor:
         rodas.on(-20,-20)
     rodas.off()
 
 def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar com o robo e pista finais
-    global ultima_cor,cor_atual,start_time
+    global cor_atual,start_time,quads
     #Vai para frente até ver Black, retorna o tempo percorrido
     while 1:    
         if diferente_de("White","Black") and start_time==0:
                 cor_atual=sensor1.color_name
                 print(cor_atual)
-                time.sleep(2.5)
+                if not quads[0]: time.sleep(2.5)
                 procurar_proximo()#vira se ver branco, começa o timer e continua a andar para frente
                 start_time = time.time()
                 sair_da_cor_atual(cor_atual)
+                #alinhar (lembrar de descontar o tempo de alinhamento na variavel start_time)
         elif sensor1.color_name=='White':
+            #while não ver o boneco
             rodas.on(-20,-20)
         elif diferente_de("White", "Black") and start_time != 0:
             rodas.on_for_seconds(-20,-20,2.5)#trocar por função de indentificação do plaza
@@ -81,7 +83,7 @@ def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
         if(0 in memoria_cor.values() and 90 not in memoria_cor.values() and tentativa==1):
             tentativa=2;
             virar(-90)
-        if (270 not in memoria_cor.values() and tentativa == 2):
+        if (-90 not in memoria_cor.values() and tentativa == 2):
             print ('tentativa2')
             virar(-90)
             orientacao = -90
