@@ -10,7 +10,7 @@ Sensor_esquerda.mode = Sensor_esquerda.MODE_RGB_RAW
 def media(leitura1,leitura2):#FAZ A MÈDIA DAS LEITURAS DOS AMBOS SENSORES, NÂO USAR NO ALINHAMENTO
     media=[]
     for x in range(3):
-        media.append(leitura1[x]+leitura2[x])/2
+        media.append((leitura1[x]+leitura2[x])/2)
     return tuple(media)
 
 def cor_mais_proxima(leitura):
