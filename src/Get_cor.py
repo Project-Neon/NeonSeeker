@@ -1,6 +1,8 @@
 import pickle
 from ev3dev2.sensor.lego import ColorSensor
 from math import sqrt
+from ev3dev2.sensor import *
+
 cores=pickle.load(open("Cores.p","rb"))
 Sensor_direita = ColorSensor(INPUT_1)
 Sensor_esquerda = ColorSensor(INPUT_2)
@@ -24,7 +26,6 @@ def cor_mais_proxima(leitura):
                  if value == valor: cor = key
 
     return cor#RETORNA A COR COM O VALOR MAIS PROXIMO DA LEITURA
-            
-
-
-
+# while(1):
+#     cor=cor_mais_proxima(media(Sensor_direita.rgb,Sensor_esquerda.rgb))
+#     print(cor,end='         \r')
