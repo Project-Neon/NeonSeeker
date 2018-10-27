@@ -9,6 +9,6 @@ Code and strategy for LARC 2018-SEK
 > "Calibrar a cor do não 
 > caia seria uma boa"
 >   Roberto, felipe 
->  Comprar contact cinza para simular fora da pista
+*  Comprar contact cinza para simular fora da pista
 
 * Alinha 
