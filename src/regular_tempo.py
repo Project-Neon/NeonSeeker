@@ -10,6 +10,6 @@ print('Pronto')
 while(1):
         while not botao.any():pass
         print("Tentei rodar por: ",para," segundos")
-        rodas.on_for_seconds(-30,-30,1.45)
+        rodas.on_for_seconds(-20,-20,1.45)
         para+=0.1
         rodas.on_for_seconds(-50,50,0.42)

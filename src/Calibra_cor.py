@@ -3,6 +3,7 @@ from ev3dev2.button import Button
 from ev3dev2.sound import Sound
 from ev3dev2.sensor.lego import ColorSensor
 from ev3dev2.sensor import *
+from time import sleep
 import pickle
 btn = Button()
 cores = {
@@ -28,5 +29,6 @@ for cor in cores.keys():
     while not btn.any():pass
     #Sound.speak('A cor ',cor,' foi adicionada com sucesso')
     cores[cor]=media(Sensor_direita.rgb,Sensor_esquerda.rgb)
+    sleep(2)
 print('Todas as cores registradas\nSalvando arquivo Cores.p...\nSaindo',end='\r')
 pickle.dump(cores,open('Cores.p','wb'))
