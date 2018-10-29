@@ -33,7 +33,10 @@ print("Declarando tudo!", end='                      \r')
 def retorno(t):#função para o retorno
     global tentativa,start_time,c
     #print ('viu preto')
-    rodas.on_for_seconds(20,20,t)#volta até o ultimo ponto de referencia
+    while c=='Black' or c=='White':rodas.on(20,20)
+    time.sleep(1)
+    rodas.off()
+    #rodas.on_for_seconds(20,20,t)#volta até o ultimo ponto de referencia
     tentativa+=1#indica que foi feita uma tentativa que falhou
     cor=c
     procurar_proximo()#vira conforme as orientações que são possiveis
@@ -149,7 +152,7 @@ def verificar_plaza():
     if c!='Black':
         mudanca = 0
         cor_momento = c
-        goiaba = Thread(target=rodas.on_for_seconds, args=(-20, -20, 1.45,))
+        goiaba = Thread(target=rodas.on_for_seconds, args=(-20, -20, 1.35,))
         goiaba.start()
         while(goiaba.is_alive()):
             if (cor_momento != c):
