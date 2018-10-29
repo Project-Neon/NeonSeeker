@@ -4,4 +4,11 @@ Code and strategy for LARC 2018-SEK
 
 # TO DO
 
-Everything!
+* Garra
+* Não caia?
+> "Calibrar a cor do não 
+> caia seria uma boa"
+>   Roberto, felipe 
+*  Comprar contact cinza para simular fora da pista
+
+* Alinha 
