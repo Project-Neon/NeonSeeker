@@ -9,16 +9,12 @@ Sensor_direita = ColorSensor(INPUT_1)
 Sensor_esquerda = ColorSensor(INPUT_2)
 Sensor_direita.mode= Sensor_direita.MODE_RGB_RAW
 Sensor_esquerda.mode = Sensor_esquerda.MODE_RGB_RAW
-Kp=0.05
-output=0
-erro=0
-target=270
 
 def alinha(Kp,target,margem):
         erroE=1
         erroD=1
         while(erroE != 0 or erroD != 0) :
-                
+
                 atualD = Sensor_direita.rgb[0]+Sensor_direita.rgb[1]+Sensor_direita.rgb[2]
                 erroD=atualD - target 
                 if abs(erroD)<margem:
@@ -44,12 +40,13 @@ def alinha(Kp,target,margem):
                 else:
                         rodas.on(outputE,outputD)
         rodas.off()
+        print(erroE)
         print("foi")
-        s= "E "
-        print(s + repr(atualE))
+        print(erroD)
+        time.sleep(3)
 
-
-               
 
 while(1):
-        alinha(0.05,250,30)
+        alinha(0.02,230,30)
+
+        
