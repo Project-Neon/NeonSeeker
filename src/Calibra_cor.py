@@ -2,9 +2,10 @@
 import ev3dev2.fonts as fonts
 from ev3dev2.button import Button
 from time import sleep
-from ev3dev2.sensor.lego import ColorSensor
 from ev3dev2.sensor import INPUT_1, INPUT_2
 from ev3dev2.display import Display
+from ev3dev.ev3 import *
+from ev3dev2.sensor.lego import ColorSensor
 import pickle
 display=Display()
 btn = Button()
@@ -19,9 +20,9 @@ Sensor_direita = ColorSensor(INPUT_1)
 Sensor_esquerda = ColorSensor(INPUT_2)
 Sensor_direita.mode= Sensor_direita.MODE_RGB_RAW
 Sensor_esquerda.mode = Sensor_esquerda.MODE_RGB_RAW
-def imprime(frase):
+def mostre(frase):
     display.clear()
-    display.draw.text((10, 10),frase, font=fonts.load('charBI24'))
+    display.draw.text((40, 40),frase, font=fonts.load('charBI24'))
 
 def media(leitura1,leitura2):#FAZ A MÈDIA DAS LEITURAS DOS AMBOS SENSORES, NÂO USAR NO ALINHAMENTO
     media=[]
@@ -31,12 +32,13 @@ def media(leitura1,leitura2):#FAZ A MÈDIA DAS LEITURAS DOS AMBOS SENSORES, NÂO
 
 for cor in cores.keys():
     frase = "Coloque na cor: {}".format(cor)
-    imprime(frase)
+    mostre(frase)
     print("Coloque na cor:",cor)
+    Sound.speak(cor)
     while not btn.any():pass
     cores[cor]=media(Sensor_direita.rgb,Sensor_esquerda.rgb)
-    sleep(2)
-imprime('Todas as cores registradas')
-imprime('Salvando arquivo Cores.p...')
+    sleep(1)
+mostre('Todas as cores registradas')
+mostre('Salvando arquivo Cores.p...')
 pickle.dump(cores,open('Cores.p','wb'))
-imprime('Saindo')
+mostre('Saindo')

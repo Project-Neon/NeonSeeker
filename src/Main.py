@@ -34,10 +34,14 @@ Sensor_sonic.mode=Sensor_sonic.MODE_US_DIST_CM
 print("Declarando tudo!", end='                      \r')
 #FUNÇÔES DE LOCOMOÇÂO
 def retorno(t):#função para o retorno
-    global tentativa,start_time,c
+    global tentativa,start_time,c,cor_atual
     #print ('viu preto')
-    while c=='Black' or c=='White':rodas.on(20,20)
-    time.sleep(0.8)#tempo para a parada no meio do quadrado
+    while c!=cor_atual:
+        rodas.on(15,15)
+        if c== cor_atual: Confirmar_cor(c)
+    rodas.off
+    time.sleep(0.2)#tempo para a parada no meio do quadrado
+    rodas.on_for_seconds(15,15,0.6)
     rodas.off()
     #rodas.on_for_seconds(20,20,t)#volta até o ultimo ponto de referencia
     tentativa+=1#indica que foi feita uma tentativa que falhou
@@ -56,13 +60,14 @@ def alinha(Kp,target,margem):
     global e,d
     erroE=1
     erroD=1
+    rodas.on_for_seconds(-20,-20,0.8)
     while(erroE != 0 or erroD != 0) :
         atualD = d[0]+d[1]+d[2]
         erroD=atualD - target
         if abs(erroD)<margem:
             erroD=0
         outputD = erroD* Kp
-        atualE = e[0]+e[1]+e[2]
+        atualE = Sensor_esquerda.rgb[0]+Sensor_esquerda.rgb[1]+Sensor_esquerda.rgb[2]
         erroE=atualE - target
         if abs(erroE)<margem:
             erroE=0
@@ -98,7 +103,7 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
         elif c!="White" and c!="Black" and start_time==0:
                 cor_atual=c
                 #print(cor_atual)
-                time.sleep(1.42)
+                time.sleep(2.15)
                 procurar_proximo()#vira se ver branco, começa o timer e continua a andar para frente
                 start_time = time.time()
                 alinha(0.02,230,30)
@@ -170,7 +175,9 @@ def cor_th():
     while(1):
         c=cor_mais_proxima(Sensor_direita.rgb)
         d=Sensor_direita.rgb
-        e=Sensor_esquerda.rgb
+        c=cor_mais_proxima(Sensor_direita.rgb)
+        c=cor_mais_proxima(Sensor_direita.rgb)
+
 def Confirmar_cor(cor_vista):
     global c
     time.sleep(0.08)
@@ -180,23 +187,51 @@ def Confirmar_cor(cor_vista):
 
 #FUNÇÕES DO PLAZA
 def verificar_plaza():
-    global c
+    global c,mochila
     if c!='Black':
         mudanca = 0
         cor_momento = c
-        goiaba = Thread(target=rodas.on_for_seconds, args=(-20, -20, 1.27,))
+        goiaba = Thread(target=rodas.on_for_seconds, args=(-15, -15, 2.17,))
         goiaba.start()
         while(goiaba.is_alive()):
             if (cor_momento != c):
                 mudanca += 1
                 cor_momento = c
-        if(mudanca >= 3):pass
+        if(mudanca >= 3):
+            tempo=time.time()
+            while(c!='Black'):
+                rodas.on(-20,-20)
+            rodas.off()
+            time.sleep(3)#deixa o BONECO
+            mochila=0
+            rodas.on_for_seconds(20,20,(tempo-time.time()))
+            virar(180)
+            Volta()
+
             # print("PLAZA")
         else:pass
             # print(" NAO PLAZA")
         goiaba.join()
     rodas.off()
 
+def volta():
+    global quads,mochila
+    i=len(quads)-1
+    while(i>0 and mochila==0):
+        virar(memoria_cor[quads[i].cor]*-1)
+        alinha()
+        procurar_passageiro()
+        time.sleep(2.17)
+        if(mochila==1 ):
+            virar(180)
+            while(c!=White):rodas.on(-20,-20)
+            rodas.off()
+            break
+        i-=1
+        #alinhar
+            #if sensor detectar algo retorna start_time e execute a função de pegar o boneco
+    if(i==0):virar(180)
+    rodas.off()
 
 #FIM DAS FUNÇÕES DO PLAZA
 
@@ -204,16 +239,16 @@ def verificar_plaza():
 def procurar_passageiro():
     global mochila,c
     while c == 'White':
-        rodas.on(-20,-20)
+        rodas.on(-15,-15)
         if Sensor_sonic.distance_centimeters<25 and mochila==0:
             time.sleep(0.3)#regular para o robo parar com seu centro de giro alinhado com o boneco detectado
             rodas.off()
             dist=Sensor_sonic.distance_centimeters
             virar(90)
-            rodas.on_for_seconds(-20,-20,dist*0.04)#regular o valor de forma ao robo pegar o boneco
+            rodas.on_for_seconds(-20,-20,dist*0.048)#regular o valor de forma ao robo pegar o boneco
             time.sleep(1)
             mochila=1
-            rodas.on_for_seconds(20,20,dist*0.055)
+            rodas.on_for_seconds(20,20,dist*0.048)
             virar(-90)
             rodas.off()
 #FIM DAS FUNÇÕES DE MOCHILA
