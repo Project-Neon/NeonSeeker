@@ -6,7 +6,7 @@ print("ev3dev.ev3", end='                      \r')
 from ev3dev2.motor import OUTPUT_A, OUTPUT_B, MoveTank, SpeedPercent
 print("motores importados", end='                      \r')
 from ev3dev2.sensor.lego import ColorSensor,UltrasonicSensor
-from ev3dev2.sensor import INPUT_1, INPUT_2, INPUT_3
+from ev3dev2.sensor import INPUT_4, INPUT_2, INPUT_3
 print("Sensores importados", end='                      \r')
 from threading import Thread
 from math import sqrt
@@ -18,7 +18,9 @@ print("Importacoes concluidas!", end='                      \r')
 rodas=MoveTank(OUTPUT_A,OUTPUT_B)
 quads = []
 orientacao = 0
-memoria_cor= {}
+# memoria_cor= {}
+memoria_cor = {}
+plaza=False
 cor_atual=""
 tentativa=0
 start_time=0
@@ -26,7 +28,7 @@ c=""
 mochila=0
 cores = pickle.load(open("Cores.p", "rb"))
 Sensor_direita = ColorSensor(INPUT_2)
-Sensor_esquerda = ColorSensor(INPUT_1)
+Sensor_esquerda = ColorSensor(INPUT_4)
 Sensor_direita.mode = Sensor_direita.MODE_RGB_RAW
 Sensor_esquerda.mode = Sensor_esquerda.MODE_RGB_RAW
 Sensor_sonic = UltrasonicSensor(INPUT_3)
@@ -35,13 +37,12 @@ print("Declarando tudo!", end='                      \r')
 #FUNÇÔES DE LOCOMOÇÂO
 def retorno(t):#função para o retorno
     global tentativa,start_time,c,cor_atual
-    #print ('viu preto')
     while c!=cor_atual:
         rodas.on(15,15)
-        if c== cor_atual: Confirmar_cor(c)
-    rodas.off
+        if c!= 'White': Confirmar_cor(c)
+    rodas.off()
     time.sleep(0.2)#tempo para a parada no meio do quadrado
-    rodas.on_for_seconds(15,15,0.6)
+    rodas.on_for_seconds(15,15,1)
     rodas.off()
     #rodas.on_for_seconds(20,20,t)#volta até o ultimo ponto de referencia
     tentativa+=1#indica que foi feita uma tentativa que falhou
@@ -57,10 +58,19 @@ def sair_da_cor_atual():#TROCAR PELO ALINHAMENTO
     rodas.off()
 
 def alinha(Kp,target,margem):
+    print('ALINHANDO')
     global e,d
     erroE=1
     erroD=1
-    rodas.on_for_seconds(-20,-20,0.8)
+    #rodas.on_for_seconds(-20,-20,0.8)
+    if c == 'White':
+        while c=='White':
+            rodas.on(15,15)
+        rodas.off()
+    else:
+        while c!='White':
+            rodas.on(-15,-15)
+        rodas.off()
     while(erroE != 0 or erroD != 0) :
         atualD = d[0]+d[1]+d[2]
         erroD=atualD - target
@@ -114,10 +124,10 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
             procurar_passageiro()
 def virar(graus):#função de virada relativa a posiçao
         if graus<0:
-            rodas.on_for_seconds(-50,50,abs(graus)*(0.40/90))
+            rodas.on_for_seconds(-50,50,abs(graus)*(0.45/90))
         elif(graus==0): pass
         else:
-            rodas.on_for_seconds(50,-50,abs(graus)*(0.40/90))
+            rodas.on_for_seconds(50,-50,abs(graus)*(0.45/90))
 
 def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
     global tentativa,cor_atual,orientacao
@@ -139,8 +149,8 @@ def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
                 virar(-180)
             else:virar(-90)
             orientacao = -90
-    else:
-        virar(memoria_cor[cor_atual])
+    else:virar(memoria_cor[cor_atual])
+
 
 #FIM DAS FUNÇÔES DE LOCOMOÇÂO
 
@@ -176,36 +186,38 @@ def cor_th():
     while(1):
         c=cor_mais_proxima(Sensor_direita.rgb)
         d=Sensor_direita.rgb
-        c=cor_mais_proxima(Sensor_direita.rgb)
-        c=cor_mais_proxima(Sensor_direita.rgb)
+        # if(c=='Black' and plaza ==False):rodas.off()
 
 def Confirmar_cor(cor_vista):
     global c
-    time.sleep(0.08)
+    time.sleep(0.1)
     if(c==cor_vista):return True
     else:return False
 #FIM DAS FUNÇÕES DE COR
 
 #FUNÇÕES DO PLAZA
 def verificar_plaza():
-    global c,mochila
+    global c,mochila,quad,cor_atual,plaza
     if c!='Black':
         mudanca = 0
         cor_momento = c
-        goiaba = Thread(target=rodas.on_for_seconds, args=(-15, -15, 2.17,))
+        goiaba = Thread(target=rodas.on_for_seconds, args=(-15, -15, 2.2,))
         goiaba.start()
         while(goiaba.is_alive()):
             if (cor_momento != c):
                 mudanca += 1
                 cor_momento = c
-        if(mudanca >= 3):
+        if(mudanca >= 2):
+            print("PLAZA")
+            plaza=True
+            quads.append(quad(cor_atual))
             tempo=time.time()
             while(c!='Black'):
                 rodas.on(-20,-20)
             rodas.off()
-            time.sleep(3)#deixa o BONECO
+            time.sleep(3.3)#deixa o BONECO
             mochila=0
-            rodas.on_for_seconds(20,20,(tempo-time.time()))
+            rodas.on_for_seconds(20,20,time.time()-tempo)
             virar(180)
             Volta()
 
@@ -215,17 +227,17 @@ def verificar_plaza():
         goiaba.join()
     rodas.off()
 
-def volta():
-    global quads,mochila
+def Volta():
+    global quads,mochila,start_time
     i=len(quads)-1
     while(i>0 and mochila==0):
-        virar(memoria_cor[quads[i].cor]*-1)
-        alinha()
+        virar(memoria_cor[c]*-1)
+        alinha(0.02,230,30)
         procurar_passageiro()
         time.sleep(2.17)
         if(mochila==1 ):
             virar(180)
-            while(c!=White):rodas.on(-20,-20)
+            alinha(0.02,230,30)
             rodas.off()
             break
         i-=1
@@ -233,6 +245,7 @@ def volta():
             #if sensor detectar algo retorna start_time e execute a função de pegar o boneco
     if(i==0):virar(180)
     rodas.off()
+    start_time=0
 
 #FIM DAS FUNÇÕES DO PLAZA
 
@@ -256,15 +269,16 @@ def procurar_passageiro():
 
 #FUNÇÕES DE INFORMAÇÃO
 class quad:#objeto que guarda informações do ponto de referencia encontrado
-    def __init__(self,cor,tempo,orientacao):
+    def __init__(self,cor):
         self.cor = cor
-        self.tempo = tempo
-        self.orientacao=orientacao
+        # self.tempo = tempo
+        # self.orientacao=orientacao
 #FIM DAS FUNÇÕES DE INFORMAÇÃO
 
 print("Vamos comecar!", end='                      \r')
 if __name__=="__main__":
     start_time=0
+    plaza = False
     # _thread.start_new_thread(cor_th)
     ver_cor = Thread(target=cor_th)
     ver_cor.daemon=True
@@ -277,8 +291,9 @@ if __name__=="__main__":
         # se ver um novo ponto de referencia atualiza a memoria de tal cor, coloca na lista informações relativas ao descoberto e ao ultimo ligado a ele
         if (diferente_de("White", "Black")):
             tentativa=0#reseta a variavel tentativas o que indica que é um novo quadrado
-            memoria_cor[cor_atual]=orientacao
-            quads.append(quad(cor_atual,tempo,orientacao))
+            if(plaza==False):
+                memoria_cor[cor_atual]=orientacao
+                quads.append(quad(cor_atual))
             orientacao=0
             start_time=0#reseta o timer
             ##print('achou novo')
