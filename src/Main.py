@@ -84,6 +84,7 @@ def alinha(Kp,target,margem):
                 rodas.on(outputE,outputD)
     while c!='White':
         rodas.on(-20,-20)
+        time.sleep(0.3)
         rodas.off()
 
 
