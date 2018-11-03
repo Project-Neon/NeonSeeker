@@ -4,6 +4,8 @@ Code and strategy for LARC 2018-SEK
 
 # TO DO
 
+
+
 * Garra
 * Não caia?
 > "Calibrar a cor do não 
@@ -12,3 +14,4 @@ Code and strategy for LARC 2018-SEK
 *  Comprar contact cinza para simular fora da pista
 
 * Alinha 
+* Verificar sensor da esquerda, as vezes não liga
