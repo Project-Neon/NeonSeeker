@@ -42,7 +42,7 @@ def retorno(t):#função para o retorno
         if c!= 'White': Confirmar_cor(c)
     rodas.off()
     time.sleep(0.2)#tempo para a parada no meio do quadrado
-    rodas.on_for_seconds(15,15,1)
+    rodas.on_for_seconds(15,15,0.8)
     rodas.off()
     #rodas.on_for_seconds(20,20,t)#volta até o ultimo ponto de referencia
     tentativa+=1#indica que foi feita uma tentativa que falhou
@@ -58,11 +58,9 @@ def sair_da_cor_atual():#TROCAR PELO ALINHAMENTO
     rodas.off()
 
 def alinha(Kp,target,margem):
-    print('ALINHANDO')
     global e,d
     erroE=1
     erroD=1
-    #rodas.on_for_seconds(-20,-20,0.8)
     if c == 'White':
         while c=='White':
             rodas.on(15,15)
@@ -112,6 +110,7 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
                 rodas.off()
                 return (time.time()-start_time)#se achar branco/cor de indicação retorna o tempo entre os pontos e para de andar
         elif c!="White" and c!="Black" and start_time==0:
+            if(Confirmar_cor(c)):
                 cor_atual=c
                 #print(cor_atual)
                 time.sleep(2.15)
@@ -146,7 +145,8 @@ def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
                # virar(-90)
         if (-90 not in memoria_cor.values() and tentativa == 2):
             if(90 not in memoria_cor.values()):
-                virar(-180)
+                virar(-90)
+                virar(-90)
             else:virar(-90)
             orientacao = -90
     else:virar(memoria_cor[cor_atual])
@@ -201,7 +201,7 @@ def verificar_plaza():
     if c!='Black':
         mudanca = 0
         cor_momento = c
-        goiaba = Thread(target=rodas.on_for_seconds, args=(-15, -15, 2.2,))
+        goiaba = Thread(target=rodas.on_for_seconds, args=(-15, -15, 2.35,))
         goiaba.start()
         while(goiaba.is_alive()):
             if (cor_momento != c):
@@ -209,6 +209,7 @@ def verificar_plaza():
                 cor_momento = c
         if(mudanca >= 2):
             print("PLAZA")
+            pickle.dump(memoria_cor,open('memoria.p','wb'))
             plaza=True
             quads.append(quad(cor_atual))
             tempo=time.time()
@@ -228,25 +229,33 @@ def verificar_plaza():
     rodas.off()
 
 def Volta():
-    global quads,mochila,start_time
-    i=len(quads)-1
+    global quads,mochila,start_time,c
+    # i=len(quads)-1
+    i=6
     while(i>0 and mochila==0):
-        virar(memoria_cor[c]*-1)
-        alinha(0.02,230,30)
-        procurar_passageiro()
-        time.sleep(2.17)
-        if(mochila==1 ):
-            virar(180)
+        if c!='White':
+            print(memoria_cor[c])
+            virar((memoria_cor[c])*(-1))
             alinha(0.02,230,30)
+        procurar_passageiro()
+        time.sleep(2.38)
+        rodas.off()
+        if(mochila==1 ):
+            virar(90)
+            virar(90)
+            alinha(0.02,230,30)
+            while(c!='White'):rodas.on(-15,-15)
             rodas.off()
             break
         i-=1
         #alinhar
             #if sensor detectar algo retorna start_time e execute a função de pegar o boneco
-    if(i==0):virar(180)
+    if(i==0):
+        virar(90)
+        virar(90)
     rodas.off()
     start_time=0
-
+    print("ACABEI DE PROCURAR")
 #FIM DAS FUNÇÕES DO PLAZA
 
 #FUNÇÕES DA MOCHILA(EQUIPAMENTO DE CAPTURAR BONECO)
@@ -255,6 +264,7 @@ def procurar_passageiro():
     while c == 'White':
         rodas.on(-15,-15)
         if Sensor_sonic.distance_centimeters<25 and mochila==0:
+            print("Passageiro")
             time.sleep(0.3)#regular para o robo parar com seu centro de giro alinhado com o boneco detectado
             rodas.off()
             dist=Sensor_sonic.distance_centimeters
@@ -294,6 +304,5 @@ if __name__=="__main__":
             if(plaza==False):
                 memoria_cor[cor_atual]=orientacao
                 quads.append(quad(cor_atual))
-            orientacao=0
             start_time=0#reseta o timer
             ##print('achou novo')
