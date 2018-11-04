@@ -23,9 +23,9 @@ memoria_cor = {}
 plaza=False
 cor_atual=""
 tentativa=0
-start_time=0
 c=""
-mochila=0
+mochila=False
+velocidade=15
 cores = pickle.load(open("Cores.p", "rb"))
 Sensor_direita = ColorSensor(INPUT_2)
 Sensor_esquerda = ColorSensor(INPUT_4)
@@ -35,27 +35,17 @@ Sensor_sonic = UltrasonicSensor(INPUT_3)
 Sensor_sonic.mode=Sensor_sonic.MODE_US_DIST_CM
 print("Declarando tudo!", end='                      \r')
 #FUNÇÔES DE LOCOMOÇÂO
-def retorno(t):#função para o retorno
-    global tentativa,start_time,c,cor_atual
+def retorno():#função para o retorno
+    global tentativa,c,cor_atual,velocidade
     while c!=cor_atual:
-        rodas.on(15,15)
+        rodas.on(velocidade,velocidade)
         if c!= 'White': Confirmar_cor(c)
+    #tempo para a parada no meio do quadrado
+    rodas.on_for_seconds(velocidade, velocidade, 15/velocidade)
     rodas.off()
-    time.sleep(0.2)#tempo para a parada no meio do quadrado
-    rodas.on_for_seconds(15,15,0.8)
-    rodas.off()
-    #rodas.on_for_seconds(20,20,t)#volta até o ultimo ponto de referencia
     tentativa+=1#indica que foi feita uma tentativa que falhou
-    cor=c
     procurar_proximo()#vira conforme as orientações que são possiveis
-    start_time = time.time()#reseta o timer
     alinha(0.02,230,30)#anda um pouco a frente para nao o robo não reconhecer o mesmo ponto de referencia como um novo ponto
-
-def sair_da_cor_atual():#TROCAR PELO ALINHAMENTO
-    global c
-    while c!='White':
-        rodas.on(-20,-20)
-    rodas.off()
 
 def alinha(Kp,target,margem):
     global d
@@ -95,32 +85,25 @@ def alinha(Kp,target,margem):
         time.sleep(0.3)
         rodas.off()
 
-
-
 def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar com o robo e pista finais
     global cor_atual,start_time,quads,c
     #Vai para frente até ver Black, retorna o tempo percorrido
     while 1:
         if(c=="Black"):
             rodas.off()
-            return (time.time()-start_time)#ACERTAR ESTE CALCULO PARA A CONTAGEM COMEÇAR DO MEIO DO QUADRADO COLORIDO
-        elif c!="White" and c!="Black" and start_time != 0:
+            return
+        elif c!="White" and c!="Black":
             if(Confirmar_cor(c)):
                 verificar_plaza()
-                rodas.off()
-                return (time.time()-start_time)#se achar branco/cor de indicação retorna o tempo entre os pontos e para de andar
-        elif c!="White" and c!="Black" and start_time==0:
-            if(Confirmar_cor(c)):
                 cor_atual=c
-                #print(cor_atual)
-                if len(quads)==0:time.sleep(2.15)
-                procurar_proximo()#vira se ver branco, começa o timer e continua a andar para frente
-                start_time = time.time()
+                rodas.off()
+                procurar_proximo()
                 alinha(0.02,230,30)
-                #alinhar (lembrar de descontar o tempo de alinhamento na variavel start_time)
-        while c=='White':
+                return 
+        elif c=='White':
             #Anda pelo branco em procura do boneco se a mochila nao esta carregada(mochila==0).Senão apenas anda para frente no branco
             procurar_passageiro()
+
 def virar(graus):#função de virada relativa a posiçao
         if graus<0:
             rodas.on_for_seconds(-40,40,abs(graus)*(0.36/90))
@@ -155,7 +138,7 @@ def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
 #FIM DAS FUNÇÔES DE LOCOMOÇÂO
 
 #FUNÇÕES DE COR
-def media(leitura1, leitura2):  # FAZ A MÈDIA DAS LEITURAS DOS AMBOS SENSORES, NÂO USAR NO ALINHAMENTO
+def media(leitura1, leitura2):  # FAZ A MÈDIA DAS LEITURAS DOS AMBOS SENSORES
     media = []
     for x in range(3):
         media.append((leitura1[x]+leitura2[x])/2)
@@ -182,7 +165,7 @@ def diferente_de(*cor):
     else: return 0
 
 def cor_th():
-    global c,e,d
+    global c,d
     while(1):
         c=cor_mais_proxima(Sensor_direita.rgb)
         d=Sensor_direita.rgb
@@ -190,18 +173,18 @@ def cor_th():
 
 def Confirmar_cor(cor_vista):
     global c
-    time.sleep(0.1)
+    time.sleep(0.08)
     if(c==cor_vista):return True
     else:return False
 #FIM DAS FUNÇÕES DE COR
 
 #FUNÇÕES DO PLAZA
 def verificar_plaza():
-    global c,mochila,quad,cor_atual,plaza
+    global c, mochila, quad, cor_atual, plaza, velocidade
     if c!='Black':
         mudanca = 0
         cor_momento = c
-        goiaba = Thread(target=rodas.on_for_seconds, args=(-15, -15, 2.35,))
+        goiaba = Thread(target=rodas.on_for_seconds, args=(-velocidade, -velocidade, 35.22/velocidade,))
         goiaba.start()
         while(goiaba.is_alive()):
             if (cor_momento != c):
@@ -209,30 +192,26 @@ def verificar_plaza():
                 cor_momento = c
         if(mudanca >= 2):
             print("PLAZA")
-            pickle.dump(memoria_cor,open('memoria.p','wb'))
-            plaza=True
-            quads.append(quad(cor_atual))
+            pickle.dump(memoria_cor,open('memoria.p','wb'))#Armazena os valores aprendidos para debugs futuros
+            plaza=True #Plaza encontrado
+            quads.append(quad(cor_atual))#coloca o ultimo quadrado antes do plaza no array
             tempo=time.time()
             while(c!='Black'):
-                rodas.on(-20,-20)
+                rodas.on(-(velocidade*1.35), -(velocidade*1.35))
             rodas.off()
             time.sleep(3.3)#deixa o BONECO
-            mochila=0
-            rodas.on_for_seconds(20,20,time.time()-tempo)
+            mochila=False
+            rodas.on_for_seconds((velocidade*1.35), (velocidade*1.35), time.time()-tempo)
             virar(180)
             Volta()
-
-            # print("PLAZA")
         else:pass
-            # print(" NAO PLAZA")
         goiaba.join()
     rodas.off()
 
 def Volta():
-    global quads,mochila,start_time,c
-    # i=len(quads)-1
-    i=6
-    while(i>0 and mochila==0):
+    global quads,mochila,start_time,c,velocidade
+    i=len(quads)-1#Indice para o robo ir somente até o ultimo quadrado
+    while(i>0 and mochila==False):#Se quiser que o robo vá até o ultimo: Tire a condição da mochila
         if c!='White':
             print(memoria_cor[c])
             virar((memoria_cor[c])*(-1))
@@ -240,38 +219,38 @@ def Volta():
         procurar_passageiro()
         time.sleep(2.38)
         rodas.off()
-        if(mochila==1 ):
+        if(mochila==True ):
             virar(90)
             virar(90)
             alinha(0.02,230,30)
-            while(c!='White'):rodas.on(-15,-15)
+            while(c!='White'):rodas.on(-velocidade,-velocidade)
             rodas.off()
             break
         i-=1
-        #alinhar
             #if sensor detectar algo retorna start_time e execute a função de pegar o boneco
     if(i==0):
         virar(90)
         virar(90)
+        while(c!='White'):rodas.on(-velocidade,-velocidade)
     rodas.off()
-    start_time=0
-    print("ACABEI DE PROCURAR")
+    procurar_passageiro()
+    verificar_plaza()
 #FIM DAS FUNÇÕES DO PLAZA
 
 #FUNÇÕES DA MOCHILA(EQUIPAMENTO DE CAPTURAR BONECO)
 def procurar_passageiro():
-    global mochila,c
+    global mochila,c,velocidade
     while c == 'White':
-        rodas.on(-15,-15)
-        if Sensor_sonic.distance_centimeters<25 and mochila==0:
+        rodas.on(-velocidade, -velocidade)
+        if Sensor_sonic.distance_centimeters<25 and mochila==False:
             print("Passageiro")
+            dist=Sensor_sonic.distance_centimeters
             time.sleep(0.3)#regular para o robo parar com seu centro de giro alinhado com o boneco detectado
             rodas.off()
-            dist=Sensor_sonic.distance_centimeters
             virar(90)
             rodas.on_for_seconds(-20,-20,dist*0.048)#regular o valor de forma ao robo pegar o boneco
             time.sleep(1)
-            mochila=1
+            mochila=True
             rodas.on_for_seconds(20,20,dist*0.048)
             virar(-90)
             rodas.off()
@@ -289,20 +268,17 @@ print("Vamos comecar!", end='                      \r')
 if __name__=="__main__":
     start_time=0
     plaza = False
-    # _thread.start_new_thread(cor_th)
     ver_cor = Thread(target=cor_th)
     ver_cor.daemon=True
     ver_cor.start()
     time.sleep(0.5)
     while (1):
-        tempo = andar_frente()
+        andar_frente()
         if (c=='Black'):#se ver Preto retorna até o ponto de referencia de onde saiu
-            retorno(tempo)
+            retorno()
         # se ver um novo ponto de referencia atualiza a memoria de tal cor, coloca na lista informações relativas ao descoberto e ao ultimo ligado a ele
         if (diferente_de("White", "Black")):
             tentativa=0#reseta a variavel tentativas o que indica que é um novo quadrado
             if(plaza==False):
                 memoria_cor[cor_atual]=orientacao
                 quads.append(quad(cor_atual))
-            start_time=0#reseta o timer
-            ##print('achou novo')
