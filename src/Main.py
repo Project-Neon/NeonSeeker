@@ -58,7 +58,7 @@ def sair_da_cor_atual():#TROCAR PELO ALINHAMENTO
     rodas.off()
 
 def alinha(Kp,target,margem):
-    global e,d
+    global d
     erroE=1
     erroD=1
     if c == 'White':
@@ -113,7 +113,7 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
             if(Confirmar_cor(c)):
                 cor_atual=c
                 #print(cor_atual)
-                time.sleep(2.15)
+                if len(quads)==0:time.sleep(2.15)
                 procurar_proximo()#vira se ver branco, começa o timer e continua a andar para frente
                 start_time = time.time()
                 alinha(0.02,230,30)
@@ -123,10 +123,10 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
             procurar_passageiro()
 def virar(graus):#função de virada relativa a posiçao
         if graus<0:
-            rodas.on_for_seconds(-50,50,abs(graus)*(0.45/90))
+            rodas.on_for_seconds(-40,40,abs(graus)*(0.36/90))
         elif(graus==0): pass
         else:
-            rodas.on_for_seconds(50,-50,abs(graus)*(0.45/90))
+            rodas.on_for_seconds(40,-40,abs(graus)*(0.36/90))
 
 def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
     global tentativa,cor_atual,orientacao
