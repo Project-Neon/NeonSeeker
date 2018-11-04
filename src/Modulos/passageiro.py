@@ -5,6 +5,7 @@ print("Importando sensores...", end='                      \r')
 from ev3dev2.sensor.lego import ColorSensor,UltrasonicSensor
 from ev3dev2.sensor import INPUT_1, INPUT_2, INPUT_3
 import time
+import Mochila
 print("ATIVADO!!", end='                      \r')
 rodas=MoveTank(OUTPUT_A,OUTPUT_B)
 Sensor_direita = ColorSensor(INPUT_2)
@@ -23,9 +24,10 @@ while(1):
         print("A MOCHILA TA EM ESTADO:",mochila, end='                      \r')
         rodas.on(-20,-20)
         if Sensor_infra.distance_centimeters<30 and mochila==0:
+            dist = Sensor_infra.distance_centimeters
             time.sleep(0.3)#regular para o robo parar com seu centro de giro alinhado com o boneco detectado
+            Mochila.Mochila_desca()
             rodas.off()
-            dist=Sensor_infra.distance_centimeters
             virar(90)
             rodas.on_for_seconds(-20,-20,dist*0.055)#regular o valor de forma ao robo pegar o boneco
             time.sleep(1)
