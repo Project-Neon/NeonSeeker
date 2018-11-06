@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
+#FUNÇÂO DE CALIBRAÇÂO
+#COLOCAR AS CORES DA PISTA
+#SE A PISTA NAO TIVER YELLLOW TIRE O Yellow
+#SE NECESSARIO CALIBRAR UM COR PARA  ROBO NAO CAIR
+#CRIE ESSA COR COM QUALQUER NOME E CALIBRE NORMALMENTE
+#NO PROGRAMA PRINCIPAL CHAMAR ESSA COR PELO NOME DADO AQUI
 import ev3dev2.fonts as fonts
 from ev3dev2.button import Button
 from time import sleep
-from ev3dev2.sensor import INPUT_1, INPUT_2
+from ev3dev2.sensor import INPUT_4, INPUT_2
+from ev3dev.ev3 import *
 from ev3dev2.sensor.lego import ColorSensor
 import pickle
 import os
@@ -16,7 +23,7 @@ cores = {
     'Black': (),
     'Blue':(),
 }
-Sensor_direita = ColorSensor(INPUT_1)
+Sensor_direita = ColorSensor(INPUT_4)
 Sensor_esquerda = ColorSensor(INPUT_2)
 Sensor_direita.mode= Sensor_direita.MODE_RGB_RAW
 Sensor_esquerda.mode = Sensor_esquerda.MODE_RGB_RAW

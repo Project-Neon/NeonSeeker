@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+#FUNÇÂO PARA TESTE DO PLAZA E VOLTA(ATÉ ACHAR UM BONECO OU CHEGAR NO FINAL DA PISTA)
+#SUBSTITUIR OS VALORES NOS LOCAIS INDICADOS
 print("Inicializando...", end='                      \r')
 import time
 # from ev3dev.ev3 import *
@@ -20,7 +23,9 @@ Mochila=LargeMotor(OUTPUT_C)
 quads = []
 orientacao = 0
 # memoria_cor= {}
-memoria_cor = {}
+memoria_cor = {'Red':0,
+'Yellow':-90,
+'Green':90,}#SUBSTITUIR AQUI AS DIREÇÔES (90 é direita e -90 esquerda, 0 é Frente)
 plaza=False
 cor_atual=""
 tentativa=0
@@ -43,7 +48,6 @@ def retorno():#função para o retorno
         if c!= 'White': Confirmar_cor(c)
     #tempo para a parada no meio do quadrado
     rodas.on_for_seconds(SpeedPercent(velocidade), SpeedPercent(velocidade), 8/SpeedPercent(velocidade))
-    #8 é o fator de tempo para ele voltar até o meio do quadrado, Se aumentar ele volta mais para tras
     rodas.off()
     tentativa+=1#indica que foi feita uma tentativa que falhou
     procurar_proximo()#vira conforme as orientações que são possiveis
@@ -112,7 +116,6 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
             procurar_passageiro()
 
 def virar(graus):#função de virada relativa a posiçao
-#0.666 é o fator de tempo da virada, alterar para virar 90 graus corretamente e caso mude a velocidade de virada, mude-o de acordo
         if graus<0:
             rodas.on_for_rotations(-40,40,abs(graus)*(0.666/90))
         elif(graus==0): pass
@@ -177,6 +180,7 @@ def cor_th():
     while(1):
         c=cor_mais_proxima(Sensor_direita.rgb)
         d=Sensor_direita.rgb
+        # if(c=='Black' and plaza ==False):rodas.off()
 
 def Confirmar_cor(cor_vista):
     global c
@@ -192,8 +196,7 @@ def verificar_plaza():
         if c!='Black':
             mudanca = 0
             cor_momento = c
-            goiaba = Thread(target=rodas.on_for_seconds, args=(-15, -15, 32.22/15,))#32.22 =fator de tempo para o mesmo ir até o meio do quadrado COLORIDO
-#Caso altere a velocidade de 15(Caso nao esteja conseguindo subir a rampa), diminua esse fator de acordo
+            goiaba = Thread(target=rodas.on_for_seconds, args=(-15, -15, 32.22/15,))
             goiaba.start()
             while(goiaba.is_alive()):
                 print("Checando plaza: ",mudanca)
@@ -202,7 +205,7 @@ def verificar_plaza():
                     cor_momento = c
             if(mudanca >= 2):
                 print("PLAZA")
-                pickle.dump(quads,open('memoria.p','wb'))#Armazena os quadrados vistos para debugs futuros
+                pickle.dump(memoria_cor,open('memoria.p','wb'))#Armazena os valores aprendidos para debugs futuros
                 plaza=True #Plaza encontrado
                 quads.append(quad(cor_atual))#coloca o ultimo quadrado antes do plaza no array
                 tempo=time.time()
@@ -214,14 +217,13 @@ def verificar_plaza():
                             return
                 if(plaza==True):
                     rodas.off()
-                    time.sleep(49.5/SpeedPercent(velocidade))#esse tempo serve para ele voltar alem das faixas do plaza, não é necessario alterar
+                    time.sleep(49.5/SpeedPercent(velocidade))
                     par=mochila
                     solte()#deixa o BONECO
                     mochila=False
                     rodas.on_for_seconds((SpeedPercent(velocidade)*1.35), (SpeedPercent(velocidade)*1.35), time.time()-tempo)
                     while(c=="White"):rodas.on(SpeedPercent(velocidade),SpeedPercent(velocidade))
                     rodas.on_for_seconds(SpeedPercent(velocidade), SpeedPercent(velocidade), 8/SpeedPercent(velocidade))
-                    #8 deve ser o mesmo fator de tempo do retorno
                     rodas.off()
                     if par==True:Mochila_sobe()
                     virar(180)
@@ -232,14 +234,15 @@ def verificar_plaza():
 
 def Volta():
     global quads,mochila,start_time,c,velocidade
-    i=len(quads)-2#Indice para o robo ir somente até o ultimo quadrado
+    i=4#Indice para o robo ir somente até o ultimo quadrado -1
+    #COLOCA O VALOR DE i COM O NUMEROS DE QUADRADOS COLORIDOS NA PISTA
     while(i>0 and mochila==False):#Se quiser que o robo vá até o ultimo: Tire a condição da mochila
         if c!='White':
             print(memoria_cor[c])
             virar((memoria_cor[c])*(-1))
             alinha(0.02,230,30)
         procurar_passageiro()
-        time.sleep(35.22/SpeedPercent(velocidade))#Mesmo fator de tempo do verificar_plaza(ENTRADA DE COLORIDO)
+        time.sleep(35.22/SpeedPercent(velocidade))
         rodas.off()
         if(mochila==True ):
             virar(90)
@@ -247,7 +250,7 @@ def Volta():
             alinha(0.02,230,30)
             while(c!='White'):rodas.on(-SpeedPercent(velocidade),-SpeedPercent(velocidade))
             rodas.off()
-            break
+            return
         i-=1
             #if sensor detectar algo retorna start_time e execute a função de pegar o boneco
     if(i==0):
@@ -264,7 +267,7 @@ def procurar_passageiro():
     global mochila,c,velocidade
     while c == 'White':
         rodas.on(-SpeedPercent(velocidade), -SpeedPercent(velocidade))
-        if Sensor_sonic.distance_centimeters<30 and mochila==0 :
+        if Sensor_sonic.distance_centimeters<15 and mochila==0 :
             rodas.off()
             pega()
 
@@ -305,8 +308,7 @@ def pega():
 class quad:#objeto que guarda informações do ponto de referencia encontrado
     def __init__(self,cor):
         self.cor = cor
-        # self.tempo = tempo
-        # self.orientacao=orientacao
+
 #FIM DAS FUNÇÕES DE INFORMAÇÃO
 
 print("Vamos comecar!", end='                      \r')
@@ -320,12 +322,3 @@ if __name__=="__main__":
     Mochila_sobe()
     while (1):
         andar_frente()
-        # if (tuts=0):#se ver Preto retorna até o ponto de referencia de onde saiu
-        #     retorno()
-        # # se ver um novo ponto de referencia atualiza a memoria de tal cor, coloca na lista informações relativas ao descoberto e ao ultimo ligado a ele
-        # if (tuts=1):
-        #     print ('Achei: ',c)
-        #     tentativa=0#reseta a variavel tentativas o que indica que é um novo quadrado
-        #     if(plaza==False and len(quads)>0):
-        #         memoria_cor[cor_atual]=orientacao
-        #         quads.append(quad(cor_atual))
