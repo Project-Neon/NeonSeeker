@@ -4,11 +4,6 @@ Code and strategy for LARC 2018-SEK
 
 # TO DO
 
-* Garra
-* Não caia?
-> "Calibrar a cor do não 
-> caia seria uma boa"
->   Roberto, felipe 
-*  Comprar contact cinza para simular fora da pista
-
-* Alinha 
+*Ta tudo feito meus bacanos
+*Se preciso fazer um função para ele nao cair e colocar no meio da função procurar_passageiro
+#LEMBREM O ZUCCHI DE FAZER ESSE READ.ME DIREITO
