@@ -128,12 +128,10 @@ def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
         if(90 in memoria_cor.values()):
             tentativa=1
         if (0 not in memoria_cor.values() and tentativa == 1):
-            virar(-90)
+            if(90 not in memoria_cor.values()):virar(-90)
             orientacao = 0
         if(0 in memoria_cor.values() and tentativa==1):
             tentativa = 2
-            #if(90 not in memoria_cor.values()):
-               # virar(-90)
         if (-90 not in memoria_cor.values() and tentativa == 2):
             if(90 not in memoria_cor.values() and 0 in memoria_cor.values()):
                 virar(-90)
@@ -141,7 +139,11 @@ def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
             else:virar(-90)
             orientacao = -90
     else:virar(memoria_cor[cor_atual])
-
+#Essa função deve conseguir servir para 4 casos(Oque aparecer na lista é o que ele deve tentar pois não conhece):
+#1:Direita->Frente->Esquerda(Não conhece nada)
+#2:Direita->Esquerda(conhece frente/0)
+#3:Frente->Esquerda(conhece direita/90)
+#4:Esquerda(conhece direita/90 e frente/0)
 
 #FIM DAS FUNÇÔES DE LOCOMOÇÂO
 
