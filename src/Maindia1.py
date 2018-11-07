@@ -105,19 +105,19 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
                 tentativa=0
                 rodas.off()
                 procurar_proximo()
-                alinha(0.02,230,30)
+                alinha(0.02,230,15)
                 return
         while c=='White':
             #Anda pelo branco em procura do boneco se a mochila nao esta carregada(mochila==0).Senão apenas anda para frente no branco
-            procurar_passageiro()
+            #procurar_passageiro()
 
 def virar(graus):#função de virada relativa a posiçao
 #0.666 é o fator de tempo da virada, alterar para virar 90 graus corretamente e caso mude a velocidade de virada, mude-o de acordo
         if graus<0:
-            rodas.on_for_rotations(-40,40,abs(graus)*(0.666/90))
+            rodas.on_for_rotations(-40,40,abs(graus)*(0.600/90))
         elif(graus==0): pass
         else:
-            rodas.on_for_rotations(40,-40,abs(graus)*(0.666/90))#FROM HELL
+            rodas.on_for_rotations(40,-40,abs(graus)*(0.600/90))#FROM HELL
 
 def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
     global tentativa,cor_atual,orientacao
@@ -237,14 +237,14 @@ def Volta():
         if c!='White':
             print(memoria_cor[c])
             virar((memoria_cor[c])*(-1))
-            alinha(0.02,230,30)
+            alinha(0.02,230,15)
         procurar_passageiro()
         time.sleep(35.22/SpeedPercent(velocidade))#Mesmo fator de tempo do verificar_plaza(ENTRADA DE COLORIDO)
         rodas.off()
         if(mochila==True ):
             virar(90)
             virar(90)
-            alinha(0.02,230,30)
+            alinha(0.02,230,15)
             while(c!='White'):rodas.on(-SpeedPercent(velocidade),-SpeedPercent(velocidade))
             rodas.off()
             break
@@ -291,11 +291,11 @@ def pega():
     Mochila_desce()
     virar(90)
     time.sleep(1)
-    rodas.on_for_seconds(-20,-20,dist*0.05)#regular o valor de forma ao robo pegar o boneco
+    rodas.on_for_seconds(-20,-20,dist*0.008)#regular o valor de forma ao robo pegar o boneco
     Mochila_pega()
     time.sleep(1)
     mochila=True
-    rodas.on_for_seconds(20,20,dist*0.05)
+    rodas.on_for_seconds(20,20,dist*0.008)
     virar(-90)
     rodas.off()
 
