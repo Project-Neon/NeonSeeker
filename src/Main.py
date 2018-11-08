@@ -48,7 +48,7 @@ def retorno():#função para o retorno
     rodas.off()
     tentativa+=1#indica que foi feita uma tentativa que falhou
     procurar_proximo()#vira conforme as orientações que são possiveis
-    alinha(0.02,230,30)#anda um pouco a frente para nao o robo não reconhecer o mesmo ponto de referencia como um novo ponto
+    alinha(0.01,230,30)#anda um pouco a frente para nao o robo não reconhecer o mesmo ponto de referencia como um novo ponto
 
 def alinha(Kp,target,margem):
     global d
@@ -92,11 +92,13 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
     global cor_atual,tentativa,quads,c,plaza,memoria_cor
     #Vai para frente até ver Black, retorna o tempo percorrido
     while 1:
-        if(c=="Black"):
+       # print(c)
+        if(c=='Black'):
             rodas.off()
             retorno()
             return
-        elif c!="White": #deve ser verdaeiro para uma cor nova diferente de preto e branco
+        elif c!='White': #deve ser verdaeiro para uma cor nova diferente de preto e branco
+            #print(Corfimar_cor(c))
             if(Confirmar_cor(c)):
                 verificar_plaza()
                 if(len(quads)>0 and plaza==False):memoria_cor[cor_atual]=orientacao
@@ -106,7 +108,7 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
                 tentativa=0
                 rodas.off()
                 procurar_proximo()
-                alinha(0.02,230,30)
+                alinha(0.01,230,30)
                 return
         while c=='White':
             #Anda pelo branco em procura do boneco se a mochila nao esta carregada(mochila==0).Senão apenas anda para frente no branco
@@ -115,10 +117,13 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
 def virar(graus):#função de virada relativa a posiçao
 #0.666 é o fator de tempo da virada, alterar para virar 90 graus corretamente e caso mude a velocidade de virada, mude-o de acordo
         if graus<0:
-            rodas.on_for_rotations(-40,40,abs(graus)*(0.666/90))
+            if c == 'Red':
+               rodas.on_for_rotations(-40,40,abs(graus)*(0.830/90))
+            else:
+               rodas.on_for_rotations(-40,40,abs(graus)*(0.683/90))
         elif(graus==0): pass
         else:
-            rodas.on_for_rotations(40,-40,abs(graus)*(0.666/90))#FROM HELL
+            rodas.on_for_rotations(40,-40,abs(graus)*(0.683/90))#FROM HELL
 
 def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
     global tentativa,cor_atual,orientacao
@@ -192,16 +197,18 @@ def verificar_plaza():
 #Caso altere a velocidade de 15(Caso nao esteja conseguindo subir a rampa), diminua esse fator de acordo
             goiaba.start()
             while(goiaba.is_alive()):
-                print("Checando plaza: ",mudanca)
+                #print("Checando plaza: ",mudanca)
                 if (cor_momento != c):
                     mudanca += 1
                     cor_momento = c
             if(mudanca >= 2):
                 print("PLAZA")
+            
                 pickle.dump(quads,open('memoria.p','wb'))#Armazena os quadrados vistos para debugs futuros
                 plaza=True #Plaza encontrado
                 quads.append(quad(cor_atual))#coloca o ultimo quadrado antes do plaza no array
                 tempo=time.time()
+                rodas.on(-30,-35)
                 while(c!='Black'):
                     rodas.on(-(SpeedPercent(velocidade)*1.35), -(SpeedPercent(velocidade)*1.35))
                     if(diferente_de('Black','White')):
@@ -209,13 +216,15 @@ def verificar_plaza():
                             rodas.off()
                             return
                 if(plaza==True):
+                    rodas.on(-25,-35)
+                    time.sleep(3)
                     rodas.off()
                     time.sleep(49.5/SpeedPercent(velocidade))#esse tempo serve para ele voltar alem das faixas do plaza, não é necessario alterar
                     par=mochila
                     solte()#deixa o BONECO
                     mochila=False
                     rodas.on_for_seconds((SpeedPercent(velocidade)*1.35), (SpeedPercent(velocidade)*1.35), time.time()-tempo)
-                    while(c=="White"):rodas.on(SpeedPercent(velocidade),SpeedPercent(velocidade))
+                    while(c=='White'):rodas.on(SpeedPercent(velocidade),SpeedPercent(velocidade))
                     rodas.on_for_seconds(SpeedPercent(velocidade), SpeedPercent(velocidade), 8/SpeedPercent(velocidade))
                     #8 deve ser o mesmo fator de tempo do retorno
                     rodas.off()
@@ -233,14 +242,14 @@ def Volta():
         if c!='White':
             print(memoria_cor[c])
             virar((memoria_cor[c])*(-1))
-            alinha(0.02,230,30)
+            alinha(0.01,230,30)
         procurar_passageiro()
-        time.sleep(35.22/SpeedPercent(velocidade))#Mesmo fator de tempo do verificar_plaza(ENTRADA DE COLORIDO)
+        time.sleep(35.22/SpeedPercent(velocidade))#Mesmo fator de tempo do verificar_plaza(ENTRADA DE COLORIDO).
         rodas.off()
         if(mochila==True ):
             virar(90)
             virar(90)
-            alinha(0.02,230,30)
+            alinha(0.01,230,30)
             while(c!='White'):rodas.on(-SpeedPercent(velocidade),-SpeedPercent(velocidade))
             rodas.off()
             break
@@ -260,9 +269,9 @@ def naocaia():
     atualD = d[0]+d[1]+d[2]
     atualE = Sensor_esquerda.rgb[0]+Sensor_esquerda.rgb[1]+Sensor_esquerda.rgb[2]
     if atualE< 40:
-        rodas.on(-SpeedPercent(velocidadeFrente+15), -SpeedPercent(velocidadeFrente-5))
+        rodas.on(-SpeedPercent(velocidadeFrente+30), -SpeedPercent(velocidadeFrente-5))
     if atualD< 40:
-        rodas.on(-SpeedPercent(velocidadeFrente-5), -SpeedPercent(velocidadeFrente+15))
+        rodas.on(-SpeedPercent(velocidadeFrente-5), -SpeedPercent(velocidadeFrente+30))
         
 #FUNÇÕES DA MOCHILA(EQUIPAMENTO DE CAPTURAR BONECO)
 def procurar_passageiro():
@@ -328,6 +337,8 @@ if __name__=="__main__":
         andar_frente()
         #print(c)
         #procurar_passageiro()
+        #vira(90)
+        #time.sleep(1)
         # if (tuts=0):#se ver Preto retorna até o ponto de referencia de onde saiu
         #     retorno()
         # # se ver um novo ponto de referencia atualiza a memoria de tal cor, coloca na lista informações relativas ao descoberto e ao ultimo ligado a ele

@@ -18,10 +18,12 @@ btn = Button()
 cores = {
     'Red': (),
     'Green': (),
-    'Yellow': (),
+  #  'Yellow': (),
     'White': (),
     'Black': (),
     'Blue':(),
+    'DarkBlue':(),
+    'LightGreen':(),
 }
 Sensor_direita = ColorSensor(INPUT_4)
 Sensor_esquerda = ColorSensor(INPUT_2)
