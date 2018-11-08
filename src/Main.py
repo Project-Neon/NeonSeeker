@@ -26,7 +26,8 @@ cor_atual=""
 tentativa=0
 c=""
 mochila=False
-velocidade=20
+velocidade=15
+velocidadeFrente=30
 cores = pickle.load(open("Cores.p", "rb"))
 Sensor_direita = ColorSensor(INPUT_2)
 Sensor_esquerda = ColorSensor(INPUT_4)
@@ -84,7 +85,7 @@ def alinha(Kp,target,margem):
                 rodas.on(outputE,outputD)
     while c!='White':
         rodas.on(-20,-20)
-        time.sleep(0.3)
+        time.sleep(0.1)
         rodas.off()
 
 def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar com o robo e pista finais
@@ -95,7 +96,7 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
             rodas.off()
             retorno()
             return
-        elif c!="White" or c!="Black":
+        elif c!="White": #deve ser verdaeiro para uma cor nova diferente de preto e branco
             if(Confirmar_cor(c)):
                 verificar_plaza()
                 if(len(quads)>0 and plaza==False):memoria_cor[cor_atual]=orientacao
@@ -261,14 +262,24 @@ def Volta():
     verificar_plaza()
 #FIM DAS FUNÇÕES DO PLAZA
 
+def naocaia():
+    global d
+    atualD = d[0]+d[1]+d[2]
+    atualE = Sensor_esquerda.rgb[0]+Sensor_esquerda.rgb[1]+Sensor_esquerda.rgb[2]
+    if atualE< 40:
+        rodas.on(-SpeedPercent(velocidadeFrente+15), -SpeedPercent(velocidadeFrente-5))
+    if atualD< 40:
+        rodas.on(-SpeedPercent(velocidadeFrente-5), -SpeedPercent(velocidadeFrente+15))
+        
 #FUNÇÕES DA MOCHILA(EQUIPAMENTO DE CAPTURAR BONECO)
 def procurar_passageiro():
-    global mochila,c,velocidade
+    global mochila,c,velocidadeFrente
     while c == 'White':
-        rodas.on(-SpeedPercent(velocidade), -SpeedPercent(velocidade))
-        if Sensor_sonic.distance_centimeters<30 and mochila==0 :
-            rodas.off()
-            pega()
+        naocaia()
+        rodas.on(-SpeedPercent(velocidadeFrente), -SpeedPercent(velocidadeFrente+0.5))
+       # if Sensor_sonic.distance_centimeters<30 and mochila==0 :
+        #    rodas.off()
+         #   pega()
 
 def Mochila_desce():
     Mochila.on_for_rotations(SpeedPercent(20), 0.53) ## negativo sobe
@@ -322,6 +333,8 @@ if __name__=="__main__":
     Mochila_sobe()
     while (1):
         andar_frente()
+        #print(c)
+        #procurar_passageiro()
         # if (tuts=0):#se ver Preto retorna até o ponto de referencia de onde saiu
         #     retorno()
         # # se ver um novo ponto de referencia atualiza a memoria de tal cor, coloca na lista informações relativas ao descoberto e ao ultimo ligado a ele
