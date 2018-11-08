@@ -123,21 +123,14 @@ def virar(graus):#função de virada relativa a posiçao
 def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
     global tentativa,cor_atual,orientacao
     if (cor_atual not in  memoria_cor.keys()):
-        if (90 not in memoria_cor.values() and tentativa == 0):
+        if (tentativa == 0):
             virar(90)
             orientacao = 90
-        if(90 in memoria_cor.values()):
-            tentativa=1
-        if (0 not in memoria_cor.values() and tentativa == 1):
-            if(90 not in memoria_cor.values()):virar(-90)
+        if (tentativa == 1):
+            virar(-90)
             orientacao = 0
-        if(0 in memoria_cor.values() and tentativa==1):
-            tentativa = 2
-        if (-90 not in memoria_cor.values() and tentativa == 2):
-            if(90 not in memoria_cor.values() and 0 in memoria_cor.values()):
-                virar(-90)
-                virar(-90)
-            else:virar(-90)
+        if (tentativa == 2):
+            virar(-90)
             orientacao = -90
     else:virar(memoria_cor[cor_atual])
 #Essa função deve conseguir servir para 4 casos(Oque aparecer na lista é o que ele deve tentar pois não conhece):
