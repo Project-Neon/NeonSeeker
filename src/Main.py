@@ -3,7 +3,7 @@ print("Inicializando...", end='                      \r')
 import time
 # from ev3dev.ev3 import *
 print("ev3dev.ev3", end='                      \r')
-from ev3dev2.motor import OUTPUT_A, OUTPUT_B,OUTPUT_C, MoveTank, SpeedPercent, LargeMotor
+from ev3dev2.motor import OUTPUT_A, OUTPUT_B,OUTPUT_C, MoveTank,MoveSteering, SpeedPercent, LargeMotor
 print("motores importados", end='                      \r')
 from ev3dev2.sensor.lego import ColorSensor,UltrasonicSensor
 from ev3dev2.sensor import INPUT_4, INPUT_2, INPUT_3
@@ -16,6 +16,7 @@ time.sleep(1)
 print("Importacoes concluidas!", end='                      \r')
 #DECLARAÇÃO DE VARIAVEIS GLOBAIS
 rodas=MoveTank(OUTPUT_A,OUTPUT_B)
+curva=MoveSteering(OUTPUT_A,OUTPUT_B)
 Mochila=LargeMotor(OUTPUT_C)
 quads = []
 orientacao = 0
@@ -31,15 +32,27 @@ velocidadeFrente=30
 cores = pickle.load(open("Cores.p", "rb"))
 Sensor_direita = ColorSensor(INPUT_2)
 Sensor_esquerda = ColorSensor(INPUT_4)
+Sensor_Tras = ColorSensor(INPUT_1)
 Sensor_direita.mode = Sensor_direita.MODE_RGB_RAW
 Sensor_esquerda.mode = Sensor_esquerda.MODE_RGB_RAW
+Sensor_Tras.mode = Sensor_Tras.MODE_RGB_RAW
 Sensor_sonic = UltrasonicSensor(INPUT_3)
 Sensor_sonic.mode=Sensor_sonic.MODE_US_DIST_CM
 print("Declarando tudo!", end='                      \r')
 #FUNÇÔES DE LOCOMOÇÂO
+def naocaiaRe():
+    global d
+    atualD = d[0]+d[1]+d[2]
+    atualE = Sensor_esquerda.rgb[0]+Sensor_esquerda.rgb[1]+Sensor_esquerda.rgb[2]
+    if atualE< 40:
+        rodas.on(-SpeedPercent(velocidade-5), -SpeedPercent(velocidade))
+    if atualD<40:
+        rodas.on(-SpeedPercent(velocidade), -SpeedPercent(velocidade-5))
+
 def retorno():#função para o retorno
     global tentativa,c,cor_atual,velocidade
     while c!=cor_atual:
+        naocaiaRe()
         rodas.on(SpeedPercent(velocidade),SpeedPercent(velocidade))
         if c!= 'White': Confirmar_cor(c)
     #tempo para a parada no meio do quadrado
@@ -57,7 +70,10 @@ def naocaia_alinhar():
         rodas.on_for_rotations(20,0,0.30)
         rodas.on_for_rotations(0,20,0.35)
         rodas.on_for_rotations(-30,-30,0.25)
-
+     if(atualD<40):
+        rodas.on_for_rotations(0,20,0.30)
+        rodas.on_for_rotations(20,0,0.35)
+        rodas.on_for_rotations(-30,-30,0.25)
 def alinha(Kp,target,margem):
     global d
 
@@ -65,13 +81,13 @@ def alinha(Kp,target,margem):
     erroD=1
     if c == 'White':
         atualE = Sensor_esquerda.rgb[0]+Sensor_esquerda.rgb[1]+Sensor_esquerda.rgb[2]
-        while c=='White' and atualE>280 :
+        while c=='White' and atualE<280 :
             rodas.on(15,15)
             atualE = Sensor_esquerda.rgb[0]+Sensor_esquerda.rgb[1]+Sensor_esquerda.rgb[2]
         rodas.off()
     else:
         atualE = Sensor_esquerda.rgb[0]+Sensor_esquerda.rgb[1]+Sensor_esquerda.rgb[2]
-        while c!='White' and atualE>280:
+        while c!='White' and atualE<280:
             rodas.on(-15,-15)
             atualE = Sensor_esquerda.rgb[0]+Sensor_esquerda.rgb[1]+Sensor_esquerda.rgb[2]
         rodas.off()
@@ -123,12 +139,13 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
                 if(len(quads)>0 and plaza==False):memoria_cor[cor_atual]=orientacao
                 if(plaza==False):quads.append(c)
                 cor_atual=c
-                print('ACHEI: ',cor_atual)
-                tentativa=0
-                rodas.off()
-                procurar_proximo()
-                alinha(0.01,245,15)
-                return
+                if cor_atual!='White' or cor_atual!='Black':
+                     print('ACHEI: ',cor_atual)
+                     tentativa=0
+                     rodas.off()
+                     procurar_proximo()
+                     alinha(0.01,245,15)
+                     return
         while c=='White':
             #Anda pelo branco em procura do boneco se a mochila nao esta carregada(mochila==0).Senão apenas anda para frente no branco
             procurar_passageiro()
@@ -137,12 +154,15 @@ def virar(graus):#função de virada relativa a posiçao
 #0.666 é o fator de tempo da virada, alterar para virar 90 graus corretamente e caso mude a velocidade de virada, mude-o de acordo
         if graus<0:
             if c == 'Red':
-               rodas.on_for_rotations(-40,40,abs(graus)*(0.830/90))
+               rodas.on_for_rotations(-40,40,abs(graus)*(0.770/90))
             else:
                rodas.on_for_rotations(-40,40,abs(graus)*(0.683/90))
         elif(graus==0): pass
         else:
-            rodas.on_for_rotations(40,-40,abs(graus)*(0.683/90))#FROM HELL
+            if c == 'Red':
+               rodas.on_for_rotations(40,-40,abs(graus)*(0.770/90))
+            else:
+               rodas.on_for_rotations(40,-40,abs(graus)*(0.683/90))#FROM HELL
 
 def procurar_proximo():#função de virar conforme o aprendido, ou a falta dele
     global tentativa,cor_atual,orientacao
@@ -200,9 +220,17 @@ def cor_th():
 
 def Confirmar_cor(cor_vista):
     global c
-    time.sleep(0.1)
-    if(c==cor_vista):return True
-    else:return False
+    time.sleep(0.2)
+    if(c==cor_vista):
+        cor_atual=c
+        return True
+
+    else:
+        atualD = d[0]+d[1]+d[2]
+        if atualD<80:
+            naocaia()
+        return False
+
 #FIM DAS FUNÇÕES DE COR
 
 #FUNÇÕES DO PLAZA
@@ -356,8 +384,11 @@ if __name__=="__main__":
         andar_frente()
         #print(c)
         #procurar_passageiro()
-        #vira(90)
-        #time.sleep(1)
+        #virar(-90)
+        #rodas.on_for_degrees(-40,-40,90)
+        #time.sleep(2)
+        #curva.on_for_degrees(50,40,40,660)
+        #time.sleep(0.3)
         # if (tuts=0):#se ver Preto retorna até o ponto de referencia de onde saiu
         #     retorno()
         # # se ver um novo ponto de referencia atualiza a memoria de tal cor, coloca na lista informações relativas ao descoberto e ao ultimo ligado a ele
