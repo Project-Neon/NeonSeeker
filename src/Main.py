@@ -48,10 +48,19 @@ def retorno():#função para o retorno
     rodas.off()
     tentativa+=1#indica que foi feita uma tentativa que falhou
     procurar_proximo()#vira conforme as orientações que são possiveis
-    alinha(0.01,230,30)#anda um pouco a frente para nao o robo não reconhecer o mesmo ponto de referencia como um novo ponto
+    alinha(0.01,245,15)#anda um pouco a frente para nao o robo não reconhecer o mesmo ponto de referencia como um novo ponto
+def naocaia_alinhar():
+     global d
+     atualD = d[0]+d[1]+d[2]
+     atualE = Sensor_esquerda.rgb[0]+Sensor_esquerda.rgb[1]+Sensor_esquerda.rgb[2]
+     if(atualE<40):
+        rodas.on_for_rotations(20,0,0.30)
+        rodas.on_for_rotations(0,20,0.35)
+        rodas.on_for_rotations(-30,-30,0.25)
 
 def alinha(Kp,target,margem):
     global d
+
     erroE=1
     erroD=1
     if c == 'White':
@@ -62,7 +71,9 @@ def alinha(Kp,target,margem):
         while c!='White':
             rodas.on(-15,-15)
         rodas.off()
+    over=time.time()
     while(erroE != 0 or erroD != 0) :
+        naocaia_alinhar();
         atualD = d[0]+d[1]+d[2]
         erroD=atualD - target
         if abs(erroD)<margem:
@@ -79,6 +90,10 @@ def alinha(Kp,target,margem):
             outputE=-40
         if outputD>40:
             outputD = 40
+        if over>10:
+            rodas.off()
+            erroE=0
+            erroD=0
         if erroE == 0 and erroD == 0:
             rodas.off()
         else:
@@ -97,7 +112,7 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
             rodas.off()
             retorno()
             return
-        elif c!='White': #deve ser verdaeiro para uma cor nova diferente de preto e branco
+        elif c!='White' and c!='Black': #deve ser verdaeiro para uma cor nova diferente de preto e branco
             #print(Corfimar_cor(c))
             if(Confirmar_cor(c)):
                 verificar_plaza()
@@ -108,7 +123,7 @@ def andar_frente():#Corrigir todos os tempos presentes aqui a fim de utilizar co
                 tentativa=0
                 rodas.off()
                 procurar_proximo()
-                alinha(0.01,230,30)
+                alinha(0.01,245,15)
                 return
         while c=='White':
             #Anda pelo branco em procura do boneco se a mochila nao esta carregada(mochila==0).Senão apenas anda para frente no branco
@@ -208,7 +223,7 @@ def verificar_plaza():
                 plaza=True #Plaza encontrado
                 quads.append(quad(cor_atual))#coloca o ultimo quadrado antes do plaza no array
                 tempo=time.time()
-                rodas.on(-30,-35)
+                rodas.on(-30,-30)
                 while(c!='Black'):
                     rodas.on(-(SpeedPercent(velocidade)*1.35), -(SpeedPercent(velocidade)*1.35))
                     if(diferente_de('Black','White')):
@@ -242,14 +257,14 @@ def Volta():
         if c!='White':
             print(memoria_cor[c])
             virar((memoria_cor[c])*(-1))
-            alinha(0.01,230,30)
+            alinha(0.01,245,15)
         procurar_passageiro()
         time.sleep(35.22/SpeedPercent(velocidade))#Mesmo fator de tempo do verificar_plaza(ENTRADA DE COLORIDO).
         rodas.off()
         if(mochila==True ):
             virar(90)
             virar(90)
-            alinha(0.01,230,30)
+            alinha(0.01,245,15)
             while(c!='White'):rodas.on(-SpeedPercent(velocidade),-SpeedPercent(velocidade))
             rodas.off()
             break
