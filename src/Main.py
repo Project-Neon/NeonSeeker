@@ -64,12 +64,16 @@ def alinha(Kp,target,margem):
     erroE=1
     erroD=1
     if c == 'White':
-        while c=='White':
+        atualE = Sensor_esquerda.rgb[0]+Sensor_esquerda.rgb[1]+Sensor_esquerda.rgb[2]
+        while c=='White' and atualE>280 :
             rodas.on(15,15)
+            atualE = Sensor_esquerda.rgb[0]+Sensor_esquerda.rgb[1]+Sensor_esquerda.rgb[2]
         rodas.off()
     else:
-        while c!='White':
+        atualE = Sensor_esquerda.rgb[0]+Sensor_esquerda.rgb[1]+Sensor_esquerda.rgb[2]
+        while c!='White' and atualE>280:
             rodas.on(-15,-15)
+            atualE = Sensor_esquerda.rgb[0]+Sensor_esquerda.rgb[1]+Sensor_esquerda.rgb[2]
         rodas.off()
     over=time.time()
     while(erroE != 0 or erroD != 0) :
@@ -83,14 +87,14 @@ def alinha(Kp,target,margem):
         erroE=atualE - target
         if abs(erroE)<margem:
             erroE=0
-        outputE = erroE* Kp
+        outputE = erroE* (Kp+0.008)
         if outputE>40:
             outputE = 40
         elif outputE<-40:
             outputE=-40
         if outputD>40:
             outputD = 40
-        if over>10:
+        if time.time()-over>10:
             rodas.off()
             erroE=0
             erroD=0
